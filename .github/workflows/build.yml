@@ -22,13 +22,12 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
-          cache: 'gradle'
 
-      - name: Grant Execute Permission for Gradle
-        run: chmod +x gradlew
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
 
-      - name: Build Debug APK
-        run: ./gradlew assembleDebug --stacktrace
+      - name: Build Debug APK using Global Gradle
+        run: gradle assembleDebug --stacktrace
 
       - name: Calculate Version Number (1.n)
         id: version
@@ -61,9 +60,9 @@ jobs:
           BADGE_LINE="[![PyFone Download](https://img.shields.io/badge/PyFone-v${VERSION}-395886?style=for-the-badge&logo=android&logoColor=white)](${DOWNLOAD_URL})"
 
           if grep -q "<!-- PYFONE_DOWNLOAD_BADGE -->" README.md; then
-            sed -i "s|<!-- PYFONE_DOWNLOAD_BADGE -->.*|<!-- PYFONE_DOWNLOAD_BADGE -->\n${BADGE_LINE}|g" README.md
+            sed -i "s|<!-- PYFONE_DOWNLOAD_BADGE -->.*|<!-- PYFONE_DOWNLOAD_BADGE -->\\n${BADGE_LINE}|g" README.md
           else
-            echo -e "\n## 📥 Download APK\n<!-- PYFONE_DOWNLOAD_BADGE -->\n${BADGE_LINE}" >> README.md
+            echo -e "\\n## 📥 Download APK\\n<!-- PYFONE_DOWNLOAD_BADGE -->\\n${BADGE_LINE}" >> README.md
           fi
 
       - name: Commit and Push README Changes

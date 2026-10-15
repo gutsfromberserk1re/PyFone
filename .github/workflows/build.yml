@@ -23,19 +23,19 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v3
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.7'
 
-      - name: Build Debug APK using Global Gradle
+      - name: Build Debug APK
         run: gradle assembleDebug --stacktrace
 
       - name: Calculate Version Number (1.n)
         id: version
         run: |
           COMMIT_COUNT=$(git rev-list --count HEAD)
-          VERSION="1.$COMMIT_COUNT"
-          echo "tag=$VERSION" >> $GITHUB_OUTPUT
-          echo "Generated version: $VERSION"
+          echo "tag=1.$COMMIT_COUNT" >> $GITHUB_OUTPUT
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
@@ -46,29 +46,22 @@ jobs:
       - name: Update README with Download Badge
         env:
           VERSION: ${{ steps.version.outputs.tag }}
-          RUN_ID: ${{ github.run_id }}
-          REPO: ${{ github.repository }}
         run: |
           DOWNLOAD_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          
-          if [ ! -f README.md ]; then
-            echo "# PyFone 📱" > README.md
-            echo "" >> README.md
-            echo "A lightning-fast, ultra-responsive mobile Python IDE." >> README.md
-          fi
-
           BADGE_LINE="[![PyFone Download](https://img.shields.io/badge/PyFone-v${VERSION}-395886?style=for-the-badge&logo=android&logoColor=white)](${DOWNLOAD_URL})"
 
-          if grep -q "<!-- PYFONE_DOWNLOAD_BADGE -->" README.md; then
-            sed -i "s|<!-- PYFONE_DOWNLOAD_BADGE -->.*|<!-- PYFONE_DOWNLOAD_BADGE -->\\n${BADGE_LINE}|g" README.md
-          else
-            echo -e "\\n## 📥 Download APK\\n<!-- PYFONE_DOWNLOAD_BADGE -->\\n${BADGE_LINE}" >> README.md
+          if ! grep -q "PYFONE_DOWNLOAD_BADGE" README.md; then
+            printf '\n## 📥 Download APK\n<!-- PYFONE_DOWNLOAD_BADGE -->\n' >> README.md
           fi
+
+          # drop any old badge line, then re-insert under the marker
+          sed -i '/img.shields.io\/badge\/PyFone-v/d' README.md
+          sed -i "s|<!-- PYFONE_DOWNLOAD_BADGE -->|<!-- PYFONE_DOWNLOAD_BADGE -->\n${BADGE_LINE}|" README.md
 
       - name: Commit and Push README Changes
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
           git add README.md
-          git commit -m "chore: auto-update PyFone download badge to version ${{ steps.version.outputs.tag }}" || exit 0
+          git commit -m "chore: update PyFone download badge to ${{ steps.version.outputs.tag }}" || exit 0
           git push

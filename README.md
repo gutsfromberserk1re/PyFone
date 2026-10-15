@@ -10,4 +10,4 @@ A lightning-fast, ultra-responsive mobile Python IDE built with Jetpack Compose.
 
 ## 📥 Download APK
 <!-- PYFONE_DOWNLOAD_BADGE -->
-[![PyFone Download](https://img.shields.io/badge/PyFone-v1.10-395886?style=for-the-badge<!-- PYFONE_DOWNLOAD_BADGE -->logo=android<!-- PYFONE_DOWNLOAD_BADGE -->logoColor=white)](https://github.com/gutsfromberserk1re/PyFone/actions/runs/38695933821)
+[![PyFone Download](https://img.shields.io/badge/PyFone-v1.10-395886?style=for-the-badgelogo=androidlogoColor=white)](https://github.com/gutsfromberserk1re/PyFone/actions/runs/38695933821)
